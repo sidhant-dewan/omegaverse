@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function NotFound() { return <div className="page-shell error-page"><p className="eyebrow">404</p><h1>This story isn’t in the catalog.</h1><p>The link may have moved, or the title has not been reviewed yet.</p><div className="flex gap-3"><Link className="button-primary" href="/explore">Explore titles</Link><Link className="button-secondary" href="/suggest">Suggest it</Link></div></div>; }

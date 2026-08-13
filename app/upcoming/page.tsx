@@ -1,0 +1,12 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { CalendarClock } from "lucide-react";
+import type { ContentCategory, Title } from "@/types";
+import { CategoryTabs } from "@/components/discovery/category-tabs";
+import { CategoryBadges } from "@/components/title/category-badges";
+import { MediaImage } from "@/components/ui/media-image";
+import { titles } from "@/lib/data/catalog";
+import { formatRelease } from "@/lib/utils/format";
+export const metadata: Metadata = { title: "Upcoming Releases", description: "Upcoming and announced BL, GL, and Omegaverse productions." };
+const groupLabel = (title: Title) => title.releasePrecision === "year" ? title.releaseDate ?? "Date TBA" : new Intl.DateTimeFormat("en", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${title.releaseDate?.slice(0,7)}-01T00:00:00Z`));
+export default async function UpcomingPage({ searchParams }: { searchParams: Promise<{ category?: ContentCategory }> }) { const { category } = await searchParams; const upcoming = titles.filter((title) => ["upcoming","announced"].includes(title.status) && (!category || title.categories.includes(category))).sort((a,b) => (a.releaseDate ?? "9999").localeCompare(b.releaseDate ?? "9999")); const groups = Map.groupBy(upcoming, groupLabel); return <div className="page-shell standard-page"><header className="page-heading"><p className="eyebrow">On the horizon</p><h1>Upcoming Releases</h1><p>Dates preserve their known precision. ShakchiVerse never invents a day when only a month or year is announced.</p></header><CategoryTabs basePath="/upcoming" active={category} />{[...groups].map(([label,items]) => <section className="schedule-day upcoming-group" key={label}><div className="day-label"><CalendarClock /><h2>{label}</h2></div><div className="schedule-list">{items.map((title) => <article key={title.id}><Link href={`/title/${title.slug}`} className="schedule-poster"><MediaImage src={title.posterUrl} alt={`${title.title} poster`} sizes="82px" /></Link><div className="schedule-info"><CategoryBadges categories={title.categories} compact /><Link href={`/title/${title.slug}`}><h3>{title.title}</h3></Link><p>{title.country} · {title.type.replace("-"," ")}</p></div><strong className="release-label">{formatRelease(title)}</strong></article>)}</div></section>)}{!upcoming.length ? <div className="empty-state"><h2>No releases are currently scheduled.</h2><p>Try another category or return to Explore.</p><Link className="button-primary" href="/explore">Explore catalog</Link></div> : null}</div>; }

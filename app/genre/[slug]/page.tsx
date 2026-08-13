@@ -1,0 +1,4 @@
+import { notFound } from "next/navigation";
+import { TitleCard } from "@/components/title/title-card";
+import { titles } from "@/lib/data/catalog";
+export default async function GenrePage({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; const genre = [...new Set(titles.flatMap((title) => title.genres))].find((value) => value.toLowerCase().replaceAll(" ", "-") === slug); if (!genre) notFound(); const results = titles.filter((title) => title.genres.includes(genre)); return <div className="page-shell standard-page"><header className="page-heading"><p className="eyebrow">Browse by genre</p><h1>{genre}</h1><p>Genres describe storytelling style and remain separate from category and trope.</p></header><div className="poster-grid">{results.map((title) => <TitleCard key={title.id} title={title} />)}</div></div>; }

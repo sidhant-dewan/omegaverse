@@ -1,0 +1,9 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { MediaImage } from "@/components/ui/media-image";
+import { TitleSection } from "@/components/discovery/title-section";
+import { getPersonBySlug, getPersonTitles, people } from "@/lib/data/catalog";
+interface SlugPageProps { params: Promise<{ slug: string }>; }
+export function generateStaticParams() { return people.map((person) => ({ slug: person.slug })); }
+export async function generateMetadata({ params }: SlugPageProps): Promise<Metadata> { const { slug } = await params; const person = getPersonBySlug(slug); return { title: person?.name ?? "Person not found", description: person?.biography }; }
+export default async function PersonPage({ params }: SlugPageProps) { const { slug } = await params; const person = getPersonBySlug(slug); if (!person) notFound(); const filmography = getPersonTitles(person.id); const schema = { "@context": "https://schema.org", "@type": "Person", name: person.name, nationality: person.nationality, description: person.biography }; return <div className="page-shell standard-page"><article className="person-profile"><div className="person-image"><MediaImage src={person.imageUrl} alt={person.name} sizes="260px" kind="person" /></div><div><p className="eyebrow">Cast & crew</p><h1>{person.name}</h1>{person.nativeName ? <p className="original-title">{person.nativeName}</p> : null}<dl className="person-facts"><div><dt>Nationality</dt><dd>{person.nationality ?? "Not available"}</dd></div><div><dt>Birth date</dt><dd>{person.birthDate ?? "Not publicly listed"}</dd></div></dl><p className="synopsis">{person.biography}</p></div></article><TitleSection title="Known For" titles={filmography.slice(0,6)} /><TitleSection title="Filmography" titles={filmography} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} /></div>; }

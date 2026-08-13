@@ -1,0 +1,4 @@
+import { notFound } from "next/navigation";
+import { TitleCard } from "@/components/title/title-card";
+import { titles } from "@/lib/data/catalog";
+export default async function TropePage({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; const trope = [...new Set(titles.flatMap((title) => title.tropes))].find((value) => value.toLowerCase().replaceAll(" ", "-") === slug); if (!trope) notFound(); const results = titles.filter((title) => title.tropes.includes(trope)); return <div className="page-shell standard-page"><header className="page-heading"><p className="eyebrow">Browse by trope</p><h1>{trope}</h1><p>Tropes describe relationship or narrative patterns and remain separate from category and genre.</p></header><div className="poster-grid">{results.map((title) => <TitleCard key={title.id} title={title} />)}</div></div>; }
